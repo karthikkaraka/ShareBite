@@ -18,4 +18,13 @@ public class User {
     private String password;
     @Enumerated(EnumType.STRING)
     private Roles role;
+    @Enumerated(EnumType.STRING)
+    private Status status;
+    @Column(unique = true,nullable = false)
+    private String email;
+    @Column(unique = true,nullable = false)
+    private String Phonenum;
+    private String address;
+    private String city;
+    private String state;
 }
