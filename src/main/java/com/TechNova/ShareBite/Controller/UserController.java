@@ -1,6 +1,7 @@
 package com.TechNova.ShareBite.Controller;
 
 import com.TechNova.ShareBite.DTO.RegisterResponce;
+import com.TechNova.ShareBite.Model.Roles;
 import com.TechNova.ShareBite.Model.Status;
 import com.TechNova.ShareBite.Model.User;
 import com.TechNova.ShareBite.Repository.UserRepository;
@@ -29,7 +30,9 @@ public class UserController {
     @PostMapping("/register/user")
     public ResponseEntity<RegisterResponce> register(@RequestBody User user)
     {
-        System.out.println("karthik");
+        if(user.getRole() == Roles.ADMIN){
+            throw new RuntimeException("you cannot register yourself as an ADMIN!!!");
+        }
         RegisterResponce regres = userser.register(user);
         return new ResponseEntity<>(regres, HttpStatus.CREATED);
     }
