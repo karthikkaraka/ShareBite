@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 
 @Entity
 @Data
@@ -27,4 +29,16 @@ public class User {
     private String address;
     private String city;
     private String state;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    @PrePersist
+    public void prePersist() {
+        createdAt = LocalDateTime.now();
+        if (status == null) status = Status.PENDING;
+    }
+    @PreUpdate
+    public void preUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
+
 }

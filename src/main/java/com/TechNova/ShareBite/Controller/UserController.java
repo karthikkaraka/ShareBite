@@ -1,6 +1,7 @@
 package com.TechNova.ShareBite.Controller;
 
 import com.TechNova.ShareBite.DTO.RegisterResponce;
+import com.TechNova.ShareBite.Model.Status;
 import com.TechNova.ShareBite.Model.User;
 import com.TechNova.ShareBite.Repository.UserRepository;
 import com.TechNova.ShareBite.Service.JwtService;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -32,17 +34,28 @@ public class UserController {
         return new ResponseEntity<>(regres, HttpStatus.CREATED);
     }
     @PostMapping("/login/user")
-    public ResponseEntity<String> login(@RequestBody User user){
-        System.out.println("karthik karaka");
-        Authentication auth = authmanager.authenticate(new UsernamePasswordAuthenticationToken(user.getName(),user.getPassword()));
-        User realuser = userrepo.findByName(user.getName());
-        if(auth.isAuthenticated())
-        {
-            String token =  jwtservice.generatejwttoken(realuser,user.getName());
-            return new ResponseEntity<>(token,HttpStatus.FOUND);
-        }
-        else{
-            return new ResponseEntity<>(null,HttpStatus.NOT_FOUND);
+    public ResponseEntity<?> login(@RequestBody User loginRequest) {
+        try {
+            Authentication auth = authmanager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequest.getName(), loginRequest.getPassword())
+            );
+
+            User realUser = userrepo.findByName(loginRequest.getName());
+            if (realUser == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+            }
+
+            if (realUser.getStatus() != Status.ACCEPTED) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body("Account status: " + realUser.getStatus() + ". Waiting for admin approval.");
+            }
+
+            String token = jwtservice.generatejwttoken(realUser, realUser.getName());
+            return ResponseEntity.ok(token);
+
+        } catch (BadCredentialsException ex) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
         }
     }
-}
+    }
+
