@@ -13,7 +13,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/ShareBite/admin")
 public class AdminController {
-
     @Autowired
     private UserRepository userRepository;
 
@@ -30,7 +29,6 @@ public class AdminController {
         User u = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
         u.setStatus(Status.ACCEPTED);
         userRepository.save(u);
-        // optional: notify user (email/SMS)
         return ResponseEntity.ok("User approved");
     }
 
@@ -40,7 +38,6 @@ public class AdminController {
         User u = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
         u.setStatus(Status.REJECTED);
         userRepository.save(u);
-        // optional: notify user
         return ResponseEntity.ok("User rejected");
     }
 }
