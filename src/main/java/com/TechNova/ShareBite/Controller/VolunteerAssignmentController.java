@@ -1,9 +1,11 @@
 package com.TechNova.ShareBite.Controller;
 
 import com.TechNova.ShareBite.Model.Donation;
+import com.TechNova.ShareBite.Model.DonationStatus;
 import com.TechNova.ShareBite.Model.User;
 import com.TechNova.ShareBite.Model.VolunteerAssignment;
 import com.TechNova.ShareBite.Repository.DonationRepository;
+import com.TechNova.ShareBite.Repository.UserRepository;
 import com.TechNova.ShareBite.Service.VolunteerAssignmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -22,13 +24,30 @@ public class VolunteerAssignmentController {
     private DonationRepository donationRepo;
     private VolunteerAssignmentService volunteerService;
     // Assign volunteer (Admin or NGO)
-    @PostMapping("/assign/{donationId}/{volunteerId}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('NGO')")
-    public ResponseEntity<VolunteerAssignment> assignVolunteer(
-            @PathVariable Long donationId,
-            @PathVariable Long volunteerId) {
-        return ResponseEntity.ok(assignmentService.assignVolunteer(donationId, volunteerId));
+    @Autowired
+    private UserRepository userRepo;
+
+    // Get available donations in volunteer's city
+    @GetMapping("/{volunteerId}/available-donations")
+    @PreAuthorize("hasRole('VOLUNTEER')")
+    public ResponseEntity<List<Donation>> getAvailableDonations(@PathVariable Long volunteerId) {
+        User volunteer = userRepo.findById(volunteerId)
+                .orElseThrow(() -> new RuntimeException("Volunteer not found"));
+        List<Donation> donations = donationRepo.findByCityAndStatus(volunteer.getCity(), DonationStatus.PENDING);
+        return ResponseEntity.ok(donations);
     }
+
+    // Volunteer claims a donation
+    @PostMapping("/{volunteerId}/claim/{donationId}")
+    @PreAuthorize("hasRole('VOLUNTEER')")
+    public ResponseEntity<VolunteerAssignment> claimDonation(
+            @PathVariable Long volunteerId,
+            @PathVariable Long donationId) {
+        return ResponseEntity.ok(
+                assignmentService.volunteerClaimDonation(donationId, volunteerId)
+        );
+    }
+
 
     // Volunteer marks picked up
     @PutMapping("/pickup/{assignmentId}")
@@ -58,4 +77,10 @@ public class VolunteerAssignmentController {
         List<User> nearbyVolunteers = volunteerService.getNearbyVolunteers(donation.getCity());
         return ResponseEntity.ok(nearbyVolunteers);
     }
+    @PutMapping("/assignments/{id}/payment")
+    public ResponseEntity<VolunteerAssignment> markPaymentDone(@PathVariable Long id) {
+        VolunteerAssignment updated = assignmentService.markPaymentDone(id);
+        return ResponseEntity.ok(updated);
+    }
+
 }

@@ -27,8 +27,12 @@ public class DonationService {
 
     // NGO accepts donation
     public Donation acceptDonation(Long donationId, Long ngoId) {
+
         Donation donation = donationRepo.findById(donationId)
                 .orElseThrow(() -> new RuntimeException("Donation not found"));
+        if (!donation.getStatus().equals("PENDING")) {
+            throw new RuntimeException("Only PENDING donations can be accepted");
+        }
         User ngo = userRepo.findById(ngoId).orElseThrow(() -> new RuntimeException("NGO not found"));
 
         donation.setNgo(ngo);

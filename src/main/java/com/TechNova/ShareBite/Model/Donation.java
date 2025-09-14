@@ -31,6 +31,7 @@ public class Donation {
     @Enumerated(EnumType.STRING)
     private DonationStatus status;
     private LocalDateTime createdAt;
+    private double estimatedValue;
     private LocalDateTime updatedAt;
     @PrePersist
     public void prePersist() {

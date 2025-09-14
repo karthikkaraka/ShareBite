@@ -34,6 +34,9 @@ public class VolunteerAssignment {
     private LocalDateTime assignedAt;
     private LocalDateTime pickedUpAt;
     private LocalDateTime deliveredAt;
+    private double volunteerPayment;
+    private boolean paymentDone = false;
+
 
     // Automatically set assignedAt when creating a new assignment
     @PrePersist
