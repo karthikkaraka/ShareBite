@@ -44,9 +44,6 @@ public class UserController {
             );
 
             User realUser = userrepo.findByName(loginRequest.getName());
-            if (realUser == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
-            }
 
             if (realUser.getStatus() != Status.ACCEPTED) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)

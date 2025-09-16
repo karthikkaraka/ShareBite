@@ -2,6 +2,7 @@ package com.TechNova.ShareBite.Service;
 
 import com.TechNova.ShareBite.Model.*;
 import com.TechNova.ShareBite.Repository.DonationRepository;
+import com.TechNova.ShareBite.Repository.NotificationRepository;
 import com.TechNova.ShareBite.Repository.UserRepository;
 import com.TechNova.ShareBite.Repository.VolunteerAssignmentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,8 @@ public class VolunteerAssignmentService {
     @Autowired
     private UserRepository userRepo;
 
+    @Autowired
+    private NotificationService notificationService;
     // Volunteer marks donation picked up
     public VolunteerAssignment markPickedUp(Long assignmentId) {
         String currentUser = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -42,6 +45,7 @@ public class VolunteerAssignmentService {
         String currentUser = SecurityContextHolder.getContext().getAuthentication().getName();
         VolunteerAssignment assignment = assignmentRepo.findById(assignmentId)
                 .orElseThrow(() -> new RuntimeException("Assignment not found"));
+        User user = assignment.getVolunteer();
         if (!assignment.getVolunteer().getEmail().equals(currentUser)) {
             throw new RuntimeException("You are not assigned to this delivery");
         }
@@ -52,7 +56,7 @@ public class VolunteerAssignmentService {
         Donation donation = assignment.getDonation();
         donation.setStatus(DonationStatus.DELIVERED);
         donationRepo.save(donation);
-
+        notificationService.createNotification(user.getId(), "You delivered donation #" + donation.getId(), NotificationType.SUCCESS);
         return assignmentRepo.save(assignment);
     }
 

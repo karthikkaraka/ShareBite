@@ -16,6 +16,8 @@ public class DonationService {
 
     @Autowired
     private UserRepository userRepo;
+    @Autowired
+    private NotificationService notificationService;
 
     // Donor creates donation
     public Donation createDonation(Long donorId, Donation donation) {
@@ -34,9 +36,10 @@ public class DonationService {
             throw new RuntimeException("Only PENDING donations can be accepted");
         }
         User ngo = userRepo.findById(ngoId).orElseThrow(() -> new RuntimeException("NGO not found"));
-
         donation.setNgo(ngo);
         donation.setStatus(DonationStatus.ACCEPTED);
+        notificationService.createNotification(ngoId, "You accepted donation #" + donation.getId(), NotificationType.INFO);
+        notificationService.createNotification(donation.getDonor().getId(), "Your donation was accepted by " + ngo.getName(), NotificationType.INFO);
         return donationRepo.save(donation);
     }
 

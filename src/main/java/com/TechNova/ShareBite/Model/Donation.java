@@ -36,7 +36,9 @@ public class Donation {
     @PrePersist
     public void prePersist() {
         createdAt = LocalDateTime.now();
-        status = DonationStatus.PENDING; // Default status
+        if(status == null){
+            status = DonationStatus.PENDING; // Default status
+        }
     }
 
     @PreUpdate

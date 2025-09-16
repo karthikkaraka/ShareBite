@@ -26,7 +26,8 @@ public class DonationController {
     // NGO accepts donation
     @PutMapping("/{donationId}/accept/{ngoId}")
     @PreAuthorize("hasRole('NGO')")
-    public ResponseEntity<Donation> acceptDonation(@PathVariable Long donationId, @PathVariable Long ngoId) {
+    public ResponseEntity<Donation> acceptDonation(@PathVariable Long donationId, @PathVariable Long ngoId)
+    {
         return ResponseEntity.ok(donationService.acceptDonation(donationId, ngoId));
     }
 

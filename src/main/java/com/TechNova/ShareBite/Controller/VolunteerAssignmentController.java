@@ -22,6 +22,7 @@ public class VolunteerAssignmentController {
     private VolunteerAssignmentService assignmentService;
     @Autowired
     private DonationRepository donationRepo;
+    @Autowired
     private VolunteerAssignmentService volunteerService;
     // Assign volunteer (Admin or NGO)
     @Autowired
