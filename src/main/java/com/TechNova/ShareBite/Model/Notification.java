@@ -27,6 +27,8 @@ public class Notification {
 
     private LocalDateTime createdAt;
 
-    private boolean read;  // to track if the user saw it
+    @Column(name = "is_read")
+    private boolean isRead;  // to track if the user saw it
+
 
 }
