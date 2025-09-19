@@ -20,11 +20,10 @@ public class VolunteerAssignmentController {
 
     @Autowired
     private VolunteerAssignmentService assignmentService;
+
     @Autowired
     private DonationRepository donationRepo;
-    @Autowired
-    private VolunteerAssignmentService volunteerService;
-    // Assign volunteer (Admin or NGO)
+
     @Autowired
     private UserRepository userRepo;
 
@@ -49,7 +48,6 @@ public class VolunteerAssignmentController {
         );
     }
 
-
     // Volunteer marks picked up
     @PutMapping("/pickup/{assignmentId}")
     @PreAuthorize("hasRole('VOLUNTEER')")
@@ -70,18 +68,22 @@ public class VolunteerAssignmentController {
     public ResponseEntity<List<VolunteerAssignment>> getAssignments(@PathVariable Long volunteerId) {
         return ResponseEntity.ok(assignmentService.getAssignmentsByVolunteer(volunteerId));
     }
+
+    // Get nearby volunteers (admin/ngo)
     @GetMapping("/volunteers/nearby/{donationId}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('NGO')")
     public ResponseEntity<List<User>> getNearbyVolunteers(@PathVariable Long donationId) {
         Donation donation = donationRepo.findById(donationId)
                 .orElseThrow(() -> new RuntimeException("Donation not found"));
-        List<User> nearbyVolunteers = volunteerService.getNearbyVolunteers(donation.getCity());
+        List<User> nearbyVolunteers = assignmentService.getNearbyVolunteers(donation.getCity());
         return ResponseEntity.ok(nearbyVolunteers);
     }
+
+    // Mark payment done
     @PutMapping("/assignments/{id}/payment")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('NGO')")
     public ResponseEntity<VolunteerAssignment> markPaymentDone(@PathVariable Long id) {
         VolunteerAssignment updated = assignmentService.markPaymentDone(id);
         return ResponseEntity.ok(updated);
     }
-
 }
