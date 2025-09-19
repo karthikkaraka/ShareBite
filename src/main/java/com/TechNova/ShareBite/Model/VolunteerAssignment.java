@@ -38,22 +38,5 @@ public class VolunteerAssignment {
     private boolean paymentDone = false;
 
 
-    // Automatically set assignedAt when creating a new assignment
-    @PrePersist
-    public void prePersist() {
-        if (assignedAt == null) {
-            assignedAt = LocalDateTime.now();
-        }
-        if (status == null) {
-            status = AssignmentStatus.ASSIGNED;
-        }
-    }
 
-    // Optional: update deliveredAt automatically when status is DELIVERED
-    @PreUpdate
-    public void preUpdate() {
-        if (status == AssignmentStatus.DELIVERED && deliveredAt == null) {
-            deliveredAt = LocalDateTime.now();
-        }
-    }
 }

@@ -34,9 +34,8 @@ public class VolunteerAssignmentService {
         if (!assignment.getVolunteer().getEmail().equals(currentUser)) {
             throw new RuntimeException("You are not assigned to this delivery");
         }
-
         assignment.setStatus(AssignmentStatus.PICKED_UP);
-        assignment.setAssignedAt(LocalDateTime.now()); // optional: update time
+        assignment.setDeliveredAt(LocalDateTime.now());
         return assignmentRepo.save(assignment);
     }
 
@@ -51,8 +50,6 @@ public class VolunteerAssignmentService {
         }
         assignment.setStatus(AssignmentStatus.DELIVERED);
         assignment.setDeliveredAt(LocalDateTime.now());
-
-        // Also update donation status
         Donation donation = assignment.getDonation();
         donation.setStatus(DonationStatus.DELIVERED);
         donationRepo.save(donation);
@@ -97,15 +94,11 @@ public class VolunteerAssignmentService {
         // Create assignment
         VolunteerAssignment assignment = new VolunteerAssignment();
         assignment.setDonation(donation);
-        // Calculate payment (25% of food cost)
-        double payment = donation.getEstimatedValue() * 0.25;
-        assignment.setVolunteerPayment(payment);
-        assignment.setPaymentDone(false);
         assignment.setVolunteer(volunteer);
         assignment.setStatus(AssignmentStatus.ASSIGNED);
         assignment.setAssignedAt(LocalDateTime.now());
-
         return assignmentRepo.save(assignment);
+
     }
     public VolunteerAssignment markPaymentDone(Long assignmentId) {
         VolunteerAssignment assignment = assignmentRepo.findById(assignmentId)
