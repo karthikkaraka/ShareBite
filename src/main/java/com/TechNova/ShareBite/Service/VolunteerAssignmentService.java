@@ -31,13 +31,19 @@ public class VolunteerAssignmentService {
         String currentUserEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         User volunteer = userRepo.findById(volunteerId)
                 .orElseThrow(() -> new RuntimeException("Volunteer not found"));
+        Donation donation = donationRepo.findById(donationId)
+                .orElseThrow(() -> new RuntimeException("Donation not found"));
+        System.out.println("Current user: " + currentUserEmail);
+        System.out.println("Volunteer email: " + volunteer.getEmail());
+        System.out.println("Donation status: " + donation.getStatus());
+        System.out.println("Volunteer city: " + volunteer.getCity());
+        System.out.println("Donation city: " + donation.getCity());
 
         if (!volunteer.getEmail().equals(currentUserEmail)) {
             throw new RuntimeException("You cannot claim donations as another volunteer");
         }
 
-        Donation donation = donationRepo.findById(donationId)
-                .orElseThrow(() -> new RuntimeException("Donation not found"));
+
 
         if (!donation.getCity().equalsIgnoreCase(volunteer.getCity())) {
             throw new RuntimeException("You can only claim donations from your city");
